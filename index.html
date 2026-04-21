@@ -83,22 +83,20 @@
 </div>
 
 <script>
-    const CLIENT_ID = 'F6fc97d12a8844bd98dd638ab532b4ef'; 
+    // 1. DÜZELTME: Küçük 'f' harfi ile başlayan gerçek ID
+    const CLIENT_ID = 'f6fc97d12a8844bd98dd638ab532b4ef'; 
     const REDIRECT_URI = 'https://selimenos6.github.io/Enosmusic/'; 
 
+    // 2. DÜZELTME: Orijinal Spotify Sunucu Linkleri
     const authEndpoint = "https://accounts.spotify.com/authorize";
     const scopes = ["user-read-currently-playing"];
 
     function authorizeSpotify() {
-        // Tırnak hatasını burada düzelttim:
-        if(CLIENT_ID === 'BURAYA_ID_YAZ') {
-            alert("Lütfen önce kodun içindeki CLIENT_ID kısmını doldurun!");
-            return;
-        }
-    window.location = `${authEndpoint}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join("%20")}&response_type=code&show_dialog=true`;
+        // 3. DÜZELTME: response_type=token olarak geri alındı
+        window.location = `${authEndpoint}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join("%20")}&response_type=token&show_dialog=true`;
     }
 
-    // Token ve Dashboard yükleme fonksiyonlarını koduna aynen eklemeyi unutma (önceki tam kodda vardı)
+    // Token Yakalama Sistemi
     const hash = window.location.hash.substring(1).split('&').reduce(function (initial, item) {
         if (item) {
             var parts = item.split('=');
@@ -109,6 +107,7 @@
 
     let token = hash.access_token;
 
+    // Giriş Başarılıysa Dashboard'u Aç
     if (token) {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
@@ -118,6 +117,7 @@
         getNowPlaying();
     }
 
+    // Spotify'dan Anlık Şarkıyı Çekme
     async function getNowPlaying() {
         if (!token) return;
         try {
@@ -129,10 +129,16 @@
                 document.getElementById('trackName').innerText = data.item.name;
                 document.getElementById('artistName').innerText = data.item.artists.map(a => a.name).join(", ");
                 document.getElementById('albumArt').style.backgroundImage = `url(${data.item.album.images[0].url})`;
+            } else {
+                document.getElementById('trackName').innerText = "Müzik Çalmıyor";
+                document.getElementById('artistName').innerText = "Spotify'dan bir şarkı başlatın";
             }
-        } catch (e) { console.error(e); }
+        } catch (e) { 
+            console.error(e); 
+        }
     }
     
+    // Notları Hafızada Tutma
     function saveNotes() {
         localStorage.setItem('enosNotes', document.getElementById('notesArea').value);
     }
