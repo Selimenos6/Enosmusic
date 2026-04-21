@@ -4,151 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>EnosOS</title>
+    <title>EnosOS Premium</title>
     <style>
-        :root {
-            --bg: #000000;
-            --spotify: #1DB954;
-            --youtube: #FF0000;
-            --glass: rgba(20, 20, 20, 0.75);
-            --border: rgba(255, 255, 255, 0.1);
-        }
-        
-        body { 
-            margin: 0; padding: 0; background-color: var(--bg); color: white; 
-            font-family: -apple-system, Helvetica, sans-serif; 
-            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 70%);
-            min-height: 100vh;
-        }
-
-        /* UYGULAMA İÇİ MODÜLLER */
-        .module { 
-            background: var(--glass); border-radius: 24px; padding: 20px; margin: 15px; 
-            border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); /* iPhone Cam Efekti */
-        }
-
-        h2 { font-size: 2rem; margin: 0; font-weight: 800; letter-spacing: 1px; }
-        h3 { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 15px 0; }
-        
-        /* BUTONLAR */
-        button { 
-            border: none; padding: 16px; border-radius: 18px; font-weight: bold; 
-            width: 100%; font-size: 1rem; cursor: pointer; transition: 0.2s; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        button:active { transform: scale(0.96); } /* Basılma Animasyonu */
-        
-        .btn-spotify { background: linear-gradient(135deg, #1DB954, #14833b); color: black; }
-        .btn-youtube { background: linear-gradient(135deg, #FF0000, #cc0000); color: white; margin-top: 10px; }
-        .btn-local { background: #333; color: white; border: 1px solid #555; }
-
-        /* GİRDİ ALANLARI */
-        input { 
-            background: rgba(0,0,0,0.5); border: 1px solid #333; color: white; 
-            padding: 14px; border-radius: 14px; width: 100%; box-sizing: border-box; 
-            font-size: 0.9rem; margin-bottom: 10px; outline: none;
-        }
-        input:focus { border-color: var(--youtube); }
-
-        /* EKRANLAR */
-        #loginScreen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
-        #dashboard { display: none; padding-top: 30px; padding-bottom: 40px; }
-        
-        /* OYNATICILAR */
-        .now-playing { text-align: center; margin-bottom: 15px; }
-        .track-title { font-size: 1.3rem; font-weight: bold; color: white; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .artist-name { font-size: 0.9rem; color: #888; }
-        iframe { border-radius: 16px; background: #050505; width: 100%; height: 190px; border: none; margin-top: 10px; box-shadow: inset 0 0 10px #000; }
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; text-align: center; }
+        .module { background: rgba(30,30,30,0.8); border-radius: 20px; padding: 20px; margin: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        h2 { font-size: 2rem; margin-top: 50px; }
+        button { background: #1DB954; color: black; border: none; padding: 15px; border-radius: 15px; font-weight: bold; width: 85%; margin-top: 10px; font-size: 1rem; }
+        input { background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; width: 85%; margin-bottom: 10px; }
+        #dashboard { display: none; padding-top: 20px; }
+        iframe { border-radius: 15px; background: #000; width: 100%; height: 200px; border: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div id="loginScreen">
-    <div style="background:var(--glass); padding:40px 20px; border-radius:30px; border:1px solid var(--border); width: 100%; max-width: 300px;">
-        <h2>ENOS<span style="color:var(--spotify)">OS</span></h2>
-        <p style="color: #888; font-size: 0.85rem; margin-bottom: 30px;">Premium Media Core v4</p>
-        <button class="btn-spotify" onclick="authorizeSpotify()">SİSTEMİ BAŞLAT</button>
+    <h2>ENOS<span style="color:#1DB954">OS</span></h2>
+    <p style="color:#888;">Media Center v4.0</p>
+    <div style="margin-top:100px;">
+        <button onclick="authorizeSpotify()">SİSTEMİ BAŞLAT</button>
     </div>
 </div>
 
 <div id="dashboard">
     <div class="module">
-        <h3 style="color:var(--spotify);">Audio Engine</h3>
-        <div class="now-playing">
-            <div class="track-title" id="trackName">Bağlantı Başarılı</div>
-            <div class="artist-name" id="artistName">Sistem Hazır</div>
-        </div>
+        <h3 style="color:#1DB954; font-size:0.7rem;">AUDIO ENGINE</h3>
+        <div id="trackName" style="font-weight:bold; font-size:1.2rem;">SİSTEM AKTİF</div>
+        <p id="artistName" style="color:#888;">Müzik Yükleyin</p>
         <input type="file" id="localAudio" accept="audio/*" style="display:none;" onchange="playLocal(event)">
-        <button class="btn-local" onclick="document.getElementById('localAudio').click()">🎵 MP3 SEÇ VE DİNLE</button>
+        <button style="background:#333; color:white;" onclick="document.getElementById('localAudio').click()">🎵 MP3 SEÇ / ÇAL</button>
         <audio id="player" style="display:none;"></audio>
     </div>
 
     <div class="module">
-        <h3 style="color:var(--youtube);">Video Engine</h3>
-        <input type="text" id="ytUrl" placeholder="YouTube linkini buraya yapıştır...">
-        <button class="btn-youtube" onclick="loadYT()">📺 VİDEOYU OYNAT</button>
+        <h3 style="color:#FF0000; font-size:0.7rem;">VIDEO ENGINE</h3>
+        <input type="text" id="ytUrl" placeholder="YouTube Linki...">
+        <button style="background:#FF0000; color:white;" onclick="loadYT()">📺 VİDEOYU AÇ</button>
         <div id="videoArea"></div>
     </div>
 </div>
 
 <script>
-    // API AYARLARI
-    const CLIENT_ID = 'f6fc97d12a8844bd98dd638ab532b4ef';
-    const REDIRECT_URI = 'https://selimenos6.github.io/Enosmusic/';
+    // iPhone 5 uyumlu eski tip değişkenler (var)
+    var CLIENT_ID = 'f6fc97d12a8844bd98dd638ab532b4ef';
+    var REDIRECT_URI = 'https://selimenos6.github.io/Enosmusic/';
 
     function authorizeSpotify() {
-        window.location = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=user-read-currently-playing&response_type=token&show_dialog=true`;
+        var url = 'https://accounts.spotify.com/authorize' + 
+                  '?client_id=' + CLIENT_ID + 
+                  '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) + 
+                  '&scope=user-read-currently-playing' + 
+                  '&response_type=code' + 
+                  '&show_dialog=true';
+        window.location.href = url;
     }
 
-    // GİRİŞ KONTROLÜ VE ANİMASYONLU GEÇİŞ
+    // SAYFA YÜKLENDİĞİNDE ÇALIŞAN KONTROL MOTORU
     window.onload = function() {
-        if (window.location.hash || window.location.search.includes('code')) {
+        var currentUrl = window.location.href;
+        
+        // EĞER LİNKTE HERHANGİ BİR CEVAP VARSA DASHBOARD'U ZORLA AÇ!
+        if (currentUrl.indexOf('code=') > -1 || currentUrl.indexOf('access_token=') > -1 || currentUrl.indexOf('?v=') > -1) {
             document.getElementById('loginScreen').style.display = 'none';
-            // Opacity animasyonu ile yumuşak giriş
-            const dash = document.getElementById('dashboard');
-            dash.style.display = 'block';
-            dash.style.opacity = '0';
-            setTimeout(() => { dash.style.transition = 'opacity 0.5s'; dash.style.opacity = '1'; }, 50);
+            document.getElementById('dashboard').style.display = 'block';
         }
     }
 
-    // MP3 OYNATICI (Sadeleştirilmiş, Hatasız)
     function playLocal(e) {
-        const file = e.target.files[0];
+        var file = e.target.files[0];
         if(!file) return;
-        
-        const player = document.getElementById('player');
+        var player = document.getElementById('player');
         player.src = URL.createObjectURL(file);
-        
-        let rawName = file.name.replace('.mp3','').replace('.m4a', '');
-        // Uzun isimleri kes
-        if(rawName.length > 25) rawName = rawName.substring(0, 25) + '...';
-        
-        document.getElementById('trackName').innerText = rawName;
-        document.getElementById('artistName').innerText = "Yerel Çevrimdışı Çalar";
+        document.getElementById('trackName').innerText = file.name;
         player.play();
     }
 
-    // YOUTUBE OYNATICI (Akıllı Link Yakalayıcı)
     function loadYT() {
-        const url = document.getElementById('ytUrl').value;
-        let vidId = "";
+        var url = document.getElementById('ytUrl').value;
+        var vidId = "";
+        if(url.indexOf('v=') > -1) vidId = url.split('v=')[1].split('&')[0];
+        else if(url.indexOf('youtu.be/') > -1) vidId = url.split('youtu.be/')[1].split('?')[0];
         
-        try {
-            if(url.includes('v=')) vidId = url.split('v=')[1].split('&')[0];
-            else if(url.includes('youtu.be/')) vidId = url.split('youtu.be/')[1].split('?')[0];
-            
-            if(vidId) {
-                document.getElementById('videoArea').innerHTML = `
-                    <iframe src="https://www.youtube.com/embed/${vidId}?autoplay=1&modestbranding=1&rel=0" allowfullscreen></iframe>
-                `;
-            } else {
-                alert("Geçersiz link. Lütfen tam bir YouTube linki yapıştırın.");
-            }
-        } catch(err) {
-            alert("Bağlantı işlenirken hata oluştu.");
+        if(vidId) {
+            document.getElementById('videoArea').innerHTML = '<iframe src="https://www.youtube.com/embed/' + vidId + '?autoplay=1" allowfullscreen></iframe>';
         }
     }
 </script>
