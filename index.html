@@ -3,49 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EnosOS Premium</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EnosOS">
+    <title>EnosOS</title>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: -apple-system, sans-serif; text-align: center; background-image: radial-gradient(circle at top, #111, #000); }
-        .module { background: rgba(25,25,25,0.7); border-radius: 20px; padding: 15px; margin: 12px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-        h2 { font-size: 2.2rem; margin-top: 40px; letter-spacing: 1px; }
-        button { background: #1DB954; color: black; border: none; padding: 15px; border-radius: 18px; font-weight: bold; width: 85%; margin-top: 10px; font-size: 1rem; }
-        .song-item { text-align: left; padding: 10px; border-bottom: 1px solid #222; font-size: 0.85rem; }
-        #dashboard { display: none; padding-top: 10px; }
-        iframe { border-radius: 15px; background: #000; width: 100%; height: 180px; border: none; margin-top: 10px; }
-        input { background: #1a1a1a; border: 1px solid #333; color: white; padding: 12px; border-radius: 12px; width: 85%; margin-bottom: 10px; box-sizing: border-box; }
+        body { margin: 0; background: #000; color: white; font-family: -apple-system, sans-serif; text-align: center; background-image: radial-gradient(circle at top, #1a1a1a, #000); min-height: 100vh; overflow-x: hidden; padding-top: 40px; }
+        
+        /* DYNAMIC ISLAND YENİ NESİL */
+        #dynamicIsland { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); width: 110px; height: 32px; background: #000; border-radius: 20px; z-index: 9999; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; border: 1px solid #333; box-shadow: 0 10px 20px rgba(0,0,0,0.6); transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); overflow: hidden; white-space: nowrap; }
+        .island-expanded { width: 220px !important; height: 42px !important; border-color: #1DB954 !important; font-size: 0.9rem !important; }
+
+        /* DURUM ÇUBUĞU */
+        #statusBar { display: flex; justify-content: space-between; padding: 5px 20px; font-size: 0.85rem; font-weight: bold; color: #888; margin-top: 15px; }
+        
+        .module { background: rgba(25,25,25,0.7); border-radius: 22px; padding: 18px; margin: 15px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        
+        h2 { font-size: 2.5rem; margin-top: 30px; letter-spacing: 1px; }
+        h3 { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+        
+        button { background: linear-gradient(45deg, #1DB954, #14833b); color: black; border: none; padding: 14px; border-radius: 16px; font-weight: bold; width: 100%; font-size: 0.95rem; margin-top: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        button:active { transform: scale(0.95); }
+        input, textarea { background: rgba(0,0,0,0.5); border: 1px solid #333; color: white; padding: 12px; border-radius: 12px; width: 100%; box-sizing: border-box; font-family: inherit; }
+        
+        #loginScreen { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #dashboard { display: none; padding-bottom: 40px; }
+        iframe { border-radius: 15px; background: #000; width: 100%; height: 180px; border: none; margin-top: 5px; }
+        .song-item { text-align: left; padding: 8px; border-bottom: 1px solid #222; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
+<div id="dynamicIsland">
+    <span id="islandText" style="color:#555;">EnosOS</span>
+</div>
+
 <div id="loginScreen">
     <h2>ENOS<span style="color:#1DB954">OS</span></h2>
-    <p style="color:#666; font-size: 0.8rem;">Spotify Library Integrated</p>
-    <div style="margin-top:80px;">
-        <button onclick="authorizeSpotify()">SİSTEMİ BAŞLAT</button>
-    </div>
+    <p style="color:#666; font-size: 0.85rem; margin-bottom: 30px;">Pro Vision - Dynamic UI</p>
+    <button style="width: 80%;" onclick="authorizeSpotify()">SİSTEMİ BAŞLAT</button>
 </div>
 
 <div id="dashboard">
+    <div id="statusBar">
+        <span id="clock">00:00</span>
+        <span id="weather">Yükleniyor...</span>
+    </div>
+
     <div class="module">
-        <h3 style="color:#1DB954; font-size:0.7rem; letter-spacing:2px; margin-bottom:10px;">SPOTIFY LIBRARY</h3>
-        <div id="spotifyList" style="max-height: 200px; overflow-y: auto;">
-            <p style="color:#555;">Liste yükleniyor...</p>
+        <h3 style="color:#ffb800;">Media Engine</h3>
+        <div id="trackName" style="font-weight:bold; margin-bottom:10px; font-size:1.1rem;">Sistem Beklemede</div>
+        <input type="file" id="localAudio" accept="audio/*,video/*" style="display:none;" onchange="playLocal(event)">
+        <button style="background:#ffb800; color:black; margin-bottom:10px;" onclick="document.getElementById('localAudio').click()">🎵 MP3/MP4 SEÇ</button>
+        <audio id="player" style="display:none;" controls></audio>
+        
+        <input type="text" id="ytUrl" placeholder="YouTube Linki..." style="margin-top: 10px;">
+        <button style="background:#FF0000; color:white;" onclick="loadYT()">📺 VİDEOYU GÖM</button>
+        <div id="videoArea"></div>
+    </div>
+
+    <div class="module">
+        <h3 style="color:#1DB954;">Spotify Library</h3>
+        <div id="spotifyList" style="max-height: 120px; overflow-y: auto; border-radius: 10px; background: rgba(0,0,0,0.3); padding: 5px;">
+            <p style="color:#555; font-size: 0.8rem;">Giriş yapıldığında liste çekilecek...</p>
         </div>
     </div>
 
     <div class="module">
-        <h3 style="color:#888; font-size:0.7rem;">LOCAL AUDIO</h3>
-        <div id="trackName" style="font-weight:bold; margin-bottom:5px;">HAZIR</div>
-        <input type="file" id="localAudio" accept="audio/*" style="display:none;" onchange="playLocal(event)">
-        <button style="background:#333; color:white; padding:10px;" onclick="document.getElementById('localAudio').click()">🎵 MP3 YÜKLE</button>
-        <audio id="player" style="display:none;"></audio>
+        <h3 style="color:#00e5ff;">Enos Notes</h3>
+        <textarea id="notesArea" rows="3" placeholder="Sözler buraya (Otomatik kaydedilir)" onkeyup="saveNotes()"></textarea>
     </div>
 
     <div class="module">
-        <h3 style="color:#FF0000; font-size:0.7rem;">VIDEO ENGINE</h3>
-        <input type="text" id="ytUrl" placeholder="Link yapıştır...">
-        <button style="background:#FF0000; color:white; padding:10px;" onclick="loadYT()">📺 İZLE</button>
-        <div id="videoArea"></div>
+        <h3 style="color:#ff00ea;">EnosCoin Miner</h3>
+        <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 10px;">KAZIM: <span id="coinScore" style="color:#ff00ea;">0</span> ENC</div>
+        <button style="background:transparent; border: 2px solid #ff00ea; color:#ff00ea;" onclick="mineCoin()">⚡ KAZIM YAP ⚡</button>
     </div>
 </div>
 
@@ -53,8 +85,24 @@
     var CLIENT_ID = 'f6fc97d12a8844bd98dd638ab532b4ef';
     var REDIRECT_URI = 'https://selimenos6.github.io/Enosmusic/';
 
+    // DYNAMIC ISLAND ANİMASYON MOTORU
+    function triggerIsland(msg, color) {
+        var island = document.getElementById('dynamicIsland');
+        var islandText = document.getElementById('islandText');
+        islandText.style.color = color;
+        islandText.innerText = msg;
+        island.classList.add('island-expanded');
+        
+        setTimeout(function() {
+            island.classList.remove('island-expanded');
+            setTimeout(function() {
+                islandText.style.color = "#555";
+                islandText.innerText = "EnosOS";
+            }, 300); // Küçülme bittikten sonra yazıyı sıfırla
+        }, 2500); // 2.5 saniye ekranda kalır
+    }
+
     function authorizeSpotify() {
-        // user-library-read iznini buraya ekledik ki şarkılarını görebilelim
         var url = 'https://accounts.spotify.com/authorize' + 
                   '?client_id=' + CLIENT_ID + 
                   '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) + 
@@ -65,13 +113,48 @@
     }
 
     window.onload = function() {
+        document.getElementById('notesArea').value = localStorage.getItem('enosNotes') || '';
+        updateClock();
+        setInterval(updateClock, 1000);
+        getWeather();
+
         var hash = window.location.hash.substring(1);
-        if (hash.indexOf('access_token=') > -1) {
-            var token = hash.split('access_token=')[1].split('&')[0];
+        if (hash.indexOf('access_token=') > -1 || window.location.href.indexOf('code=') > -1) {
             document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            fetchSpotifySongs(token);
+            var dash = document.getElementById('dashboard');
+            dash.style.display = 'block';
+            dash.style.opacity = '0';
+            setTimeout(function() { 
+                dash.style.transition = 'opacity 0.6s ease'; 
+                dash.style.opacity = '1'; 
+                // Sistem açılınca Island'ı tetikle
+                triggerIsland("SİSTEM AKTİF", "#1DB954");
+            }, 100);
+
+            if(hash.indexOf('access_token=') > -1) {
+                var token = hash.split('access_token=')[1].split('&')[0];
+                fetchSpotifySongs(token);
+            }
         }
+    }
+
+    function updateClock() {
+        var d = new Date();
+        var h = d.getHours(); var m = d.getMinutes();
+        if(h < 10) h = '0' + h; if(m < 10) m = '0' + m;
+        document.getElementById('clock').innerText = h + ':' + m;
+    }
+
+    function getWeather() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://api.open-meteo.com/v1/forecast?latitude=36.73&longitude=29.91&current_weather=true', true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var data = JSON.parse(xhr.responseText);
+                document.getElementById('weather').innerText = Math.round(data.current_weather.temperature) + '°C Elmalı';
+            }
+        };
+        xhr.send();
     }
 
     function fetchSpotifySongs(token) {
@@ -96,9 +179,14 @@
         var file = e.target.files[0];
         if(!file) return;
         var player = document.getElementById('player');
+        player.style.display = "block"; player.style.width = "100%"; player.style.marginTop = "10px";
         player.src = URL.createObjectURL(file);
-        document.getElementById('trackName').innerText = file.name;
+        var rawName = file.name.replace('.mp3','').replace('.mp4','');
+        document.getElementById('trackName').innerText = rawName;
         player.play();
+        
+        // Şarkı açılınca Island'ı tetikle
+        triggerIsland("🎵 Oynatılıyor...", "#ffb800");
     }
 
     function loadYT() {
@@ -107,7 +195,22 @@
         if(url.indexOf('v=') > -1) vidId = url.split('v=')[1].split('&')[0];
         else if(url.indexOf('youtu.be/') > -1) vidId = url.split('youtu.be/')[1].split('?')[0];
         if(vidId) {
-            document.getElementById('videoArea').innerHTML = '<iframe src="https://www.youtube.com/embed/' + vidId + '?autoplay=1" allowfullscreen></iframe>';
+            document.getElementById('videoArea').innerHTML = '<iframe src="https://www.youtube.com/embed/' + vidId + '?autoplay=1&modestbranding=1" allowfullscreen></iframe>';
+            triggerIsland("📺 Video Yüklendi", "#FF0000");
+        }
+    }
+
+    function saveNotes() {
+        localStorage.setItem('enosNotes', document.getElementById('notesArea').value);
+    }
+
+    var coins = 0;
+    function mineCoin() {
+        coins += 1;
+        document.getElementById('coinScore').innerText = coins;
+        // Her 10 coinde Island'da bildirim ver
+        if(coins % 10 === 0) {
+            triggerIsland("💰 +" + coins + " ENC Kasildi!", "#ff00ea");
         }
     }
 </script>
