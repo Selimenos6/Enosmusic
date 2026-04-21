@@ -95,7 +95,7 @@
             alert("Lütfen önce kodun içindeki CLIENT_ID kısmını doldurun!");
             return;
         }
-        window.location = `${authEndpoint}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join("%20")}&response_type=token&show_dialog=true`;
+       window.location = `${authEndpoint}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join("%20")}&response_type=code&show_dialog=true`;
     }
 
     // Token ve Dashboard yükleme fonksiyonlarını koduna aynen eklemeyi unutma (önceki tam kodda vardı)
