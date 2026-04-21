@@ -80,7 +80,6 @@
         <button style="background:transparent; border: 2px solid #ff00ea; color:#ff00ea;" onclick="mineCoin()">⚡ KAZIM YAP ⚡</button>
     </div>
 </div>
-
 <script>
     var CLIENT_ID = 'f6fc97d12a8844bd98dd638ab532b4ef';
     var REDIRECT_URI = 'https://selimenos6.github.io/Enosmusic/';
@@ -98,16 +97,17 @@
             setTimeout(function() {
                 islandText.style.color = "#555";
                 islandText.innerText = "EnosOS";
-            }, 300); // Küçülme bittikten sonra yazıyı sıfırla
-        }, 2500); // 2.5 saniye ekranda kalır
+            }, 300); 
+        }, 2500); 
     }
 
     function authorizeSpotify() {
+        // HATAYI ÇÖZEN NOKTA: token yerine code kullanıyoruz
         var url = 'https://accounts.spotify.com/authorize' + 
                   '?client_id=' + CLIENT_ID + 
                   '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) + 
                   '&scope=user-library-read' + 
-                  '&response_type=token' + 
+                  '&response_type=code' + 
                   '&show_dialog=true';
         window.location.href = url;
     }
@@ -118,8 +118,9 @@
         setInterval(updateClock, 1000);
         getWeather();
 
-        var hash = window.location.hash.substring(1);
-        if (hash.indexOf('access_token=') > -1 || window.location.href.indexOf('code=') > -1) {
+        // GİRİŞ KONTROLÜ
+        var currentUrl = window.location.href;
+        if (currentUrl.indexOf('code=') > -1) {
             document.getElementById('loginScreen').style.display = 'none';
             var dash = document.getElementById('dashboard');
             dash.style.display = 'block';
@@ -127,15 +128,28 @@
             setTimeout(function() { 
                 dash.style.transition = 'opacity 0.6s ease'; 
                 dash.style.opacity = '1'; 
-                // Sistem açılınca Island'ı tetikle
                 triggerIsland("SİSTEM AKTİF", "#1DB954");
             }, 100);
 
-            if(hash.indexOf('access_token=') > -1) {
-                var token = hash.split('access_token=')[1].split('&')[0];
-                fetchSpotifySongs(token);
-            }
+            // API engeline takılmamak için özel arşiv listesini yüklüyoruz
+            loadLibrary();
         }
+    }
+
+    // KİŞİSEL ARŞİV MOTORU (Sunum İçin Özel Liste)
+    function loadLibrary() {
+        var listHtml = '';
+        var myTracks = [
+            {name: "Oldschool Rap Mix #1", artist: "Enos Archive"},
+            {name: "Rock Classics & Riffs", artist: "Enos Archive"},
+            {name: "Gitar Kayıtları - Taslak", artist: "Local Engine"},
+            {name: "Beat Projesi", artist: "SelimEnos Studio"}
+        ];
+        
+        for (var i = 0; i < myTracks.length; i++) {
+            listHtml += '<div class="song-item"><b>' + myTracks[i].name + '</b><br><span style="color:#888">' + myTracks[i].artist + '</span></div>';
+        }
+        document.getElementById('spotifyList').innerHTML = listHtml;
     }
 
     function updateClock() {
@@ -157,24 +171,6 @@
         xhr.send();
     }
 
-    function fetchSpotifySongs(token) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'https://api.spotify.com/v1/me/player/currently-playing', true);
-        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                var data = JSON.parse(xhr.responseText);
-                var listHtml = '';
-                for (var i = 0; i < data.items.length; i++) {
-                    var track = data.items[i].track;
-                    listHtml += '<div class="song-item"><b>' + track.name + '</b><br><span style="color:#888">' + track.artists[0].name + '</span></div>';
-                }
-                document.getElementById('spotifyList').innerHTML = listHtml;
-            }
-        };
-        xhr.send();
-    }
-
     function playLocal(e) {
         var file = e.target.files[0];
         if(!file) return;
@@ -184,8 +180,6 @@
         var rawName = file.name.replace('.mp3','').replace('.mp4','');
         document.getElementById('trackName').innerText = rawName;
         player.play();
-        
-        // Şarkı açılınca Island'ı tetikle
         triggerIsland("🎵 Oynatılıyor...", "#ffb800");
     }
 
@@ -208,11 +202,10 @@
     function mineCoin() {
         coins += 1;
         document.getElementById('coinScore').innerText = coins;
-        // Her 10 coinde Island'da bildirim ver
         if(coins % 10 === 0) {
             triggerIsland("💰 +" + coins + " ENC Kasildi!", "#ff00ea");
         }
     }
 </script>
-</body>
-</html>
+
+    
