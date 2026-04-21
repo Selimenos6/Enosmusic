@@ -3,70 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>EnosOS Premium</title>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; text-align: center; }
-        .module { background: rgba(30,30,30,0.8); border-radius: 20px; padding: 20px; margin: 15px; border: 1px solid rgba(255,255,255,0.1); }
-        h2 { font-size: 2rem; margin-top: 50px; }
-        button { background: #1DB954; color: black; border: none; padding: 15px; border-radius: 15px; font-weight: bold; width: 85%; margin-top: 10px; font-size: 1rem; }
-        input { background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; width: 85%; margin-bottom: 10px; }
-        #dashboard { display: none; padding-top: 20px; }
-        iframe { border-radius: 15px; background: #000; width: 100%; height: 200px; border: none; margin-top: 10px; }
+        body { margin: 0; background: #000; color: white; font-family: -apple-system, sans-serif; text-align: center; background-image: radial-gradient(circle at top, #111, #000); }
+        .module { background: rgba(25,25,25,0.7); border-radius: 20px; padding: 15px; margin: 12px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        h2 { font-size: 2.2rem; margin-top: 40px; letter-spacing: 1px; }
+        button { background: #1DB954; color: black; border: none; padding: 15px; border-radius: 18px; font-weight: bold; width: 85%; margin-top: 10px; font-size: 1rem; }
+        .song-item { text-align: left; padding: 10px; border-bottom: 1px solid #222; font-size: 0.85rem; }
+        #dashboard { display: none; padding-top: 10px; }
+        iframe { border-radius: 15px; background: #000; width: 100%; height: 180px; border: none; margin-top: 10px; }
+        input { background: #1a1a1a; border: 1px solid #333; color: white; padding: 12px; border-radius: 12px; width: 85%; margin-bottom: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div id="loginScreen">
     <h2>ENOS<span style="color:#1DB954">OS</span></h2>
-    <p style="color:#888;">Media Center v4.0</p>
-    <div style="margin-top:100px;">
+    <p style="color:#666; font-size: 0.8rem;">Spotify Library Integrated</p>
+    <div style="margin-top:80px;">
         <button onclick="authorizeSpotify()">SİSTEMİ BAŞLAT</button>
     </div>
 </div>
 
 <div id="dashboard">
     <div class="module">
-        <h3 style="color:#1DB954; font-size:0.7rem;">AUDIO ENGINE</h3>
-        <div id="trackName" style="font-weight:bold; font-size:1.2rem;">SİSTEM AKTİF</div>
-        <p id="artistName" style="color:#888;">Müzik Yükleyin</p>
+        <h3 style="color:#1DB954; font-size:0.7rem; letter-spacing:2px; margin-bottom:10px;">SPOTIFY LIBRARY</h3>
+        <div id="spotifyList" style="max-height: 200px; overflow-y: auto;">
+            <p style="color:#555;">Liste yükleniyor...</p>
+        </div>
+    </div>
+
+    <div class="module">
+        <h3 style="color:#888; font-size:0.7rem;">LOCAL AUDIO</h3>
+        <div id="trackName" style="font-weight:bold; margin-bottom:5px;">HAZIR</div>
         <input type="file" id="localAudio" accept="audio/*" style="display:none;" onchange="playLocal(event)">
-        <button style="background:#333; color:white;" onclick="document.getElementById('localAudio').click()">🎵 MP3 SEÇ / ÇAL</button>
+        <button style="background:#333; color:white; padding:10px;" onclick="document.getElementById('localAudio').click()">🎵 MP3 YÜKLE</button>
         <audio id="player" style="display:none;"></audio>
     </div>
 
     <div class="module">
         <h3 style="color:#FF0000; font-size:0.7rem;">VIDEO ENGINE</h3>
-        <input type="text" id="ytUrl" placeholder="YouTube Linki...">
-        <button style="background:#FF0000; color:white;" onclick="loadYT()">📺 VİDEOYU AÇ</button>
+        <input type="text" id="ytUrl" placeholder="Link yapıştır...">
+        <button style="background:#FF0000; color:white; padding:10px;" onclick="loadYT()">📺 İZLE</button>
         <div id="videoArea"></div>
     </div>
 </div>
 
 <script>
-    // iPhone 5 uyumlu eski tip değişkenler (var)
     var CLIENT_ID = 'f6fc97d12a8844bd98dd638ab532b4ef';
     var REDIRECT_URI = 'https://selimenos6.github.io/Enosmusic/';
 
     function authorizeSpotify() {
+        // user-library-read iznini buraya ekledik ki şarkılarını görebilelim
         var url = 'https://accounts.spotify.com/authorize' + 
                   '?client_id=' + CLIENT_ID + 
                   '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) + 
-                  '&scope=user-read-currently-playing' + 
-                  '&response_type=code' + 
+                  '&scope=user-library-read' + 
+                  '&response_type=token' + 
                   '&show_dialog=true';
         window.location.href = url;
     }
 
-    // SAYFA YÜKLENDİĞİNDE ÇALIŞAN KONTROL MOTORU
     window.onload = function() {
-        var currentUrl = window.location.href;
-        
-        // EĞER LİNKTE HERHANGİ BİR CEVAP VARSA DASHBOARD'U ZORLA AÇ!
-        if (currentUrl.indexOf('code=') > -1 || currentUrl.indexOf('access_token=') > -1 || currentUrl.indexOf('?v=') > -1) {
+        var hash = window.location.hash.substring(1);
+        if (hash.indexOf('access_token=') > -1) {
+            var token = hash.split('access_token=')[1].split('&')[0];
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
+            fetchSpotifySongs(token);
         }
+    }
+
+    function fetchSpotifySongs(token) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://api.spotify.com/v1/me/player/currently-playing', true);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var data = JSON.parse(xhr.responseText);
+                var listHtml = '';
+                for (var i = 0; i < data.items.length; i++) {
+                    var track = data.items[i].track;
+                    listHtml += '<div class="song-item"><b>' + track.name + '</b><br><span style="color:#888">' + track.artists[0].name + '</span></div>';
+                }
+                document.getElementById('spotifyList').innerHTML = listHtml;
+            }
+        };
+        xhr.send();
     }
 
     function playLocal(e) {
@@ -83,7 +106,6 @@
         var vidId = "";
         if(url.indexOf('v=') > -1) vidId = url.split('v=')[1].split('&')[0];
         else if(url.indexOf('youtu.be/') > -1) vidId = url.split('youtu.be/')[1].split('?')[0];
-        
         if(vidId) {
             document.getElementById('videoArea').innerHTML = '<iframe src="https://www.youtube.com/embed/' + vidId + '?autoplay=1" allowfullscreen></iframe>';
         }
