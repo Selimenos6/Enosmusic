@@ -83,62 +83,68 @@
 </div>
 
 <script>
-    // 1. DÜZELTME: Küçük 'f' harfi ile başlayan gerçek ID
+    // SENİN BİLGİLERİN (Eksiksiz)
     const CLIENT_ID = 'f6fc97d12a8844bd98dd638ab532b4ef'; 
     const REDIRECT_URI = 'https://selimenos6.github.io/Enosmusic/'; 
 
-    // 2. DÜZELTME: Orijinal Spotify Sunucu Linkleri
     const authEndpoint = "https://accounts.spotify.com/authorize";
     const scopes = ["user-read-currently-playing"];
 
+    // 1. ADIM: SPOTIFY'A GİRİŞ İSTEĞİ (Hatasız Code Yöntemi)
     function authorizeSpotify() {
-        // 3. DÜZELTME: response_type=token olarak geri alındı
-        window.location = `${authEndpoint}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join("%20")}&response_type=token&show_dialog=true`;
+        window.location = `${authEndpoint}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join("%20")}&response_type=code&show_dialog=true`;
     }
 
-    // Token Yakalama Sistemi
-    const hash = window.location.hash.substring(1).split('&').reduce(function (initial, item) {
-        if (item) {
-            var parts = item.split('=');
-            initial[parts[0]] = decodeURIComponent(parts[1]);
-        }
-        return initial;
-    }, {});
+    // 2. ADIM: DÖNÜŞÜ YAKALA VE BEYAZ EKRANI YOK ET
+    const urlParams = new URLSearchParams(window.location.search);
+    let authCode = urlParams.get('code');
 
-    let token = hash.access_token;
-
-    // Giriş Başarılıysa Dashboard'u Aç
-    if (token) {
+    // Eğer URL'de 'code' varsa (yani Spotify'dan başarıyla döndüysek) Dashboard'u aç
+    if (authCode) {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         document.getElementById('navBar').style.display = 'flex';
+        
         document.getElementById('dateText').innerText = new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' });
         document.getElementById('notesArea').value = localStorage.getItem('enosNotes') || "";
-        getNowPlaying();
+        
+        // Arayüzü Hazırla
+        document.getElementById('trackName').innerText = "Sistem Bağlandı!";
+        document.getElementById('artistName').innerText = "Çevrimdışı Mod Aktif. Aşağıdan Müzik Seçin.";
+        
+        // MP3 Butonu Ekleme (Hacker Yolu)
+        document.getElementById('artistName').innerHTML += `
+            <br><br>
+            <input type="file" id="localAudio" accept="audio/*" style="display:none;" onchange="playLocal(event)">
+            <button onclick="document.getElementById('localAudio').click()" style="background:#1DB954; color:black; padding:8px 15px; border-radius:20px; border:none; font-weight:bold; cursor:pointer;">🎵 MP3 YÜKLE / ÇAL</button>
+            <audio id="player" style="display:none;"></audio>
+        `;
     }
 
-    // Spotify'dan Anlık Şarkıyı Çekme
-    async function getNowPlaying() {
-        if (!token) return;
-        try {
-            const response = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
-            if (response.status === 200) {
-                const data = await response.json();
-                document.getElementById('trackName').innerText = data.item.name;
-                document.getElementById('artistName').innerText = data.item.artists.map(a => a.name).join(", ");
-                document.getElementById('albumArt').style.backgroundImage = `url(${data.item.album.images[0].url})`;
-            } else {
-                document.getElementById('trackName').innerText = "Müzik Çalmıyor";
-                document.getElementById('artistName').innerText = "Spotify'dan bir şarkı başlatın";
-            }
-        } catch (e) { 
-            console.error(e); 
+    // 3. ADIM: YEREL MP3 ÇALMA MOTORU
+    function playLocal(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const player = document.getElementById('player');
+            player.src = URL.createObjectURL(file);
+            
+            // İsimleri Ekrana Yaz
+            let songTitle = file.name.replace('.mp3', '').replace('.m4a', '');
+            document.getElementById('trackName').innerText = songTitle;
+            document.getElementById('artistName').innerText = "Yerel Depolama (SelimEnos Engine)";
+            
+            // Havalı bir albüm kapağı efekti
+            document.getElementById('albumArt').style.background = "linear-gradient(45deg, #1DB954, #121212)";
+            
+            player.play();
         }
     }
-    
-    // Notları Hafızada Tutma
+
+    // API Veri Çekme Butonunu İptal Edip Uyarıya Çevirdik (Sunucu olmadığı için)
+    function getNowPlaying() {
+        alert("Spotify Sunucu Bağlantısı (Node.js) gerekli. Şu an Çevrimdışı (Yerel MP3) modundasınız.");
+    }
+
     function saveNotes() {
         localStorage.setItem('enosNotes', document.getElementById('notesArea').value);
     }
